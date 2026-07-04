@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "USTB 成绩排名列",
   "description": "在北科大本研一体化教务系统个人成绩查询表格中追加排名和总人数两列。",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "content_scripts": [
     {
       "matches": [

@@ -7,6 +7,7 @@ Thumbs.db
 # Local debug output
 *.log
 debug-*.png
+PROJECT_PROGRESS.md
 
 # Packaged extension archives
 *.zip

@@ -148,11 +148,10 @@
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
   }
 
-  function expandTableWidth(table, addedWidth) {
-    const current = Number.parseInt((table.style.width || "").replace("px", ""), 10);
-    if (Number.isFinite(current) && current > 0 && addedWidth > 0) {
-      table.style.width = `${current + addedWidth}px`;
-    }
+  function setColWidth(col, width) {
+    const next = Math.max(32, Math.round(width));
+    col.setAttribute("width", String(next));
+    col.style.width = `${next}px`;
   }
 
   function cloneColgroupColumns(table, count) {
@@ -162,23 +161,60 @@
     const cols = Array.from(colgroup.children).filter((child) => child.tagName === "COL");
     const source = cols[cols.length - 1];
     const width = readColWidth(source);
-    let addedWidth = 0;
     for (let index = 0; index < count; index += 1) {
       const next = source ? source.cloneNode(true) : document.createElement("col");
       next.setAttribute(`data-${EXT_COL_CLASS}`, "true");
-      if (!next.getAttribute("width")) next.setAttribute("width", String(width));
+      setColWidth(next, width);
       colgroup.appendChild(next);
-      addedWidth += readColWidth(next);
     }
-    expandTableWidth(table, addedWidth);
   }
 
-  function cloneCell(source, text, header) {
-    const cell = source ? source.cloneNode(true) : document.createElement(header ? "th" : "td");
-    cell.classList.add(EXT_COL_CLASS);
-    if (header) cell.classList.add(EXT_HEADER_CLASS);
-    cell.dataset.ustbGradeRankExt = "true";
+  function getFitWidth(table) {
+    const root = table.closest(".ivu-table-wrapper") || table.parentElement || document.body;
+    const rectWidth = root.getBoundingClientRect ? root.getBoundingClientRect().width : 0;
+    const clientWidth = root.clientWidth || document.documentElement.clientWidth || window.innerWidth;
+    return Math.max(320, Math.floor(rectWidth || clientWidth) - 2);
+  }
 
+  function fitTablesToContainer(headerTable, bodyTable) {
+    if (!headerTable) return;
+
+    const tables = [headerTable, bodyTable].filter(Boolean);
+    const firstColgroup = headerTable.querySelector("colgroup");
+    const firstCols = firstColgroup
+      ? Array.from(firstColgroup.children).filter((child) => child.tagName === "COL")
+      : [];
+    if (!firstCols.length) return;
+
+    const targetWidth = getFitWidth(headerTable);
+    const originalWidths = firstCols.map(readColWidth);
+    const totalOriginal = originalWidths.reduce((sum, width) => sum + width, 0);
+    if (!totalOriginal) return;
+
+    const newWidths = originalWidths.map((width, index) => {
+      const isExtensionColumn = firstCols[index].getAttribute(`data-${EXT_COL_CLASS}`) === "true";
+      const minimum = isExtensionColumn ? 48 : 36;
+      return Math.max(minimum, (width / totalOriginal) * targetWidth);
+    });
+    const roundedTotal = newWidths.reduce((sum, width) => sum + Math.round(width), 0);
+    if (newWidths.length && roundedTotal !== targetWidth) {
+      newWidths[newWidths.length - 1] += targetWidth - roundedTotal;
+    }
+
+    tables.forEach((table) => {
+      table.style.width = `${targetWidth}px`;
+      const colgroup = table.querySelector("colgroup");
+      if (!colgroup) return;
+      Array.from(colgroup.children)
+        .filter((child) => child.tagName === "COL")
+        .forEach((col, index) => {
+          if (newWidths[index] != null) setColWidth(col, newWidths[index]);
+        });
+    });
+  }
+
+  function setCellText(cell, text) {
+    if (!cell) return;
     const span = cell.querySelector(".ivu-table-cell span") || cell.querySelector("span");
     const tableCell = cell.querySelector(".ivu-table-cell");
     if (span) {
@@ -188,6 +224,14 @@
     } else {
       cell.textContent = text;
     }
+  }
+
+  function cloneCell(source, text, header) {
+    const cell = source ? source.cloneNode(true) : document.createElement(header ? "th" : "td");
+    cell.classList.add(EXT_COL_CLASS);
+    if (header) cell.classList.add(EXT_HEADER_CLASS);
+    cell.dataset.ustbGradeRankExt = "true";
+    setCellText(cell, text);
 
     return cell;
   }
@@ -217,8 +261,8 @@
     const total = rankData ? rankData.total : "";
 
     if (existing.length >= 2) {
-      existing[0].textContent = rank;
-      existing[1].textContent = total;
+      setCellText(existing[0], rank);
+      setCellText(existing[1], total);
       return;
     }
 
@@ -300,6 +344,7 @@
     appendHeaderCells(headerRow, headerCells[headerCells.length - 1]);
     cloneColgroupColumns(headerTable, 2);
     if (bodyTable !== headerTable) cloneColgroupColumns(bodyTable, 2);
+    fitTablesToContainer(headerTable, bodyTable);
 
     visibleBodyRows(bodyTable).forEach((row) => {
       const cells = getHeaderRowCells(row);

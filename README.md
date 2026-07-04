@@ -28,19 +28,8 @@ Chrome 或 Microsoft Edge 均可使用：
 - `content-script.js` 接收接口响应，递归查找包含 `kcmc` 和 `pm/zrs` 的数据项。
 - 课程行优先通过“课程代码 + 课程名称”匹配接口中的 `kcdm/kcmc`，然后回退到课程代码或课程名称。
 - 成绩页实际运行在同域 iframe 中，扩展已开启 `all_frames`。
-- 成绩表实际是 iView 的分离表格结构，表头和表体是两张 table；扩展会同时修改表头、表体和 `colgroup` 宽度。
+- 成绩表的表头和表体会同时追加列，并自动按页面宽度重新分配每列宽度。
 - 表格列通过克隆原表格最后一列生成，以尽量保持样式一致。
-
-## 本次调试结论
-
-未显示新列的主要原因是旧版只重点适配了 Element UI 和普通 table，没有准确适配保存页面中的 iView 表格结构。真实页面中“个人成绩查询”位于 `cjgl/grcjcx/go/1` iframe 内，成绩表 DOM 为 `.ivu-table-wrapper`，表头 `.ivu-table-header table` 和表体 `.ivu-table-body table` 分离。
-
-当前版本已修正：
-
-- `page-hook.js` 通过 Manifest V3 `world: "MAIN"` 在主页面环境更早注入。
-- `content-script.js` 适配 iView 分离表格。
-- 修复了“空列先渲染后，接口数据返回时不回填”的时序问题。
-- 自动化复现已验证课程“决策优化分析方法”显示排名 `11`、总人数 `79`。
 
 ## 注意
 
