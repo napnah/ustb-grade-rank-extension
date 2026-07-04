@@ -129,6 +129,13 @@
     return normalizeText(element ? element.textContent : "");
   }
 
+  function isPersonalGradePage() {
+    if (window.location.pathname.includes("/cjgl/grcjcx/go/")) return true;
+
+    const pageText = normalizeText(document.body ? document.body.textContent : "");
+    return pageText.includes("重修补考") && pageText.includes("学生成绩类别");
+  }
+
   function getHeaderCells(tableRoot) {
     return Array.from(tableRoot.querySelectorAll(".el-table__header-wrapper thead th"));
   }
@@ -417,6 +424,8 @@
   }
 
   function renderAllTables() {
+    if (!isPersonalGradePage()) return;
+
     Array.from(document.querySelectorAll(".el-table")).forEach(renderElementTable);
 
     renderHeaderDiscoveredTables();

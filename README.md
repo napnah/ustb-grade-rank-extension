@@ -22,13 +22,11 @@ Chrome 或 Microsoft Edge 均可使用：
 3. 等待成绩表加载完成。
 4. 表格右侧会出现“排名”“总人数”两列。
 
-首页“常用查询及办理”的成绩表也会自动显示排名和总人数。
-
 ## 工作方式
 
 - `page-hook.js` 注入到页面环境，hook `fetch` 和 `XMLHttpRequest`。
 - `content-script.js` 接收接口响应，递归查找包含 `kcmc` 和 `pm/zrs` 的数据项。
-- 支持个人成绩查询接口 `/cjgl/grcjcx/grcjcx` 和首页成绩接口 `/cjgl/yjsxxjd/cjcx`。
+- 支持个人成绩查询接口 `/cjgl/grcjcx/grcjcx`。
 - 课程行优先通过“课程代码 + 课程名称”匹配接口中的 `kcdm/kcmc`，然后回退到课程代码或课程名称。
 - 成绩页实际运行在同域 iframe 中，扩展已开启 `all_frames`。
 - 成绩表的表头和表体会同时追加列，并自动按页面宽度重新分配每列宽度。
