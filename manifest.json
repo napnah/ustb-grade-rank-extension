@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "USTB 成绩排名列",
+  "description": "在北科大本研一体化教务系统个人成绩查询表格中追加排名和总人数两列。",
+  "version": "1.0.2",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://byyt.ustb.edu.cn/*"
+      ],
+      "js": [
+        "page-hook.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://byyt.ustb.edu.cn/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "page-hook.js"
+      ],
+      "matches": [
+        "https://byyt.ustb.edu.cn/*"
+      ]
+    }
+  ],
+  "host_permissions": [
+    "https://byyt.ustb.edu.cn/*"
+  ]
+}

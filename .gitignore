@@ -1,0 +1,13 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local debug output
+*.log
+debug-*.png
+
+# Packaged extension archives
+*.zip
+*.crx
