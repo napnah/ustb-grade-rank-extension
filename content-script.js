@@ -274,6 +274,11 @@
     return headerCells.findIndex((cell) => textOf(cell).includes(expectedText));
   }
 
+  function isGradeTableHeader(headerCells) {
+    const headerText = headerCells.map((cell) => textOf(cell)).join("|");
+    return headerText.includes("课程名称") && headerText.includes("总评成绩");
+  }
+
   function getHeaderRowCells(row) {
     return Array.from(row ? row.children : []).filter((cell) =>
       ["TH", "TD"].includes(cell.tagName)
@@ -335,6 +340,7 @@
     const courseNameIndex = headerIndexByText(headerCells, "课程名称");
     const courseCodeIndex = headerIndexByText(headerCells, "课程代码");
     if (courseNameIndex < 0) return false;
+    if (!isGradeTableHeader(headerCells)) return false;
 
     const bodyRowsInSameTable = visibleBodyRows(headerTable);
     const bodyTable =
@@ -364,6 +370,7 @@
     const headerCells = getHeaderCells(tableRoot);
     const courseNameIndex = headerIndexByText(headerCells, "课程名称");
     if (courseNameIndex < 0) return false;
+    if (!isGradeTableHeader(headerCells)) return false;
 
     const headerRow = headerCells[0] && headerCells[0].parentElement;
     const headerTable = tableRoot.querySelector(".el-table__header-wrapper table");
@@ -386,6 +393,7 @@
     const headerCells = getNativeHeaderCells(table);
     const courseNameIndex = headerIndexByText(headerCells, "课程名称");
     if (courseNameIndex < 0) return false;
+    if (!isGradeTableHeader(headerCells)) return false;
 
     const headerRow = headerCells[0] && headerCells[0].parentElement;
     appendHeaderCells(headerRow, headerCells[headerCells.length - 1]);

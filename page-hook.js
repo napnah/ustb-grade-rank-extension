@@ -1,7 +1,10 @@
 (function () {
   "use strict";
 
-  const TARGET_PATH = "/cjgl/grcjcx/grcjcx";
+  const TARGET_PATHS = [
+    "/cjgl/grcjcx/grcjcx",
+    "/cjgl/yjsxxjd/cjcx"
+  ];
   const MESSAGE_SOURCE = "ustb-grade-rank-extension";
 
   function shouldCapture(input) {
@@ -12,7 +15,7 @@
           : input && typeof input.url === "string"
             ? input.url
             : String(input || "");
-      return url.includes(TARGET_PATH);
+      return TARGET_PATHS.some((path) => url.includes(path));
     } catch (_error) {
       return false;
     }
